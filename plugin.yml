@@ -1,0 +1,21 @@
+main: net.dmg2.RegenBlock.RegenBlock
+name: RegenBlock
+version: beta 1.0.2
+
+permissions:
+    regenblock.self:
+        description: Allows to use plugin.
+        default: op
+
+commands:
+   regenblock:
+      description: Main command
+      permission: regenblock.self
+      usage: |
+          /regenblock list - Lists player's current selection
+          /regenblock select - Starts/stops player's selection mode
+          /regenblock region create (name) [re-spawn time] - assigns selection to a region
+          /regenblock region remove (name) - removes region from the list
+          /regenblock region modify (name) [re-spawn time] - modify existing region
+          /regenblock region modify time (name) (re-spawn time) - modify existing region's re-spawn time
+          /regenblock region list - lists current regions
