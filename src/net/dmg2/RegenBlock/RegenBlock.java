@@ -39,19 +39,13 @@ public class RegenBlock extends JavaPlugin {
     	
     	pm.registerEvent(Event.Type.BLOCK_BREAK, this.blockListener, Event.Priority.Normal, this);
     	pm.registerEvent(Event.Type.BLOCK_PLACE, this.blockListener, Event.Priority.Normal, this);
-    	pm.registerEvent(Event.Type.BLOCK_BURN, this.blockListener, Event.Priority.Normal, this);
-    	pm.registerEvent(Event.Type.BLOCK_PHYSICS, this.blockListener, Event.Priority.Normal, this);
-    	pm.registerEvent(Event.Type.BLOCK_FADE, this.blockListener, Event.Priority.Normal, this);
-    	pm.registerEvent(Event.Type.BLOCK_FORM, this.blockListener, Event.Priority.Normal, this);
-    	pm.registerEvent(Event.Type.BLOCK_IGNITE, this.blockListener, Event.Priority.Normal, this);
 
     	pm.registerEvent(Event.Type.PLAYER_INTERACT, this.playerListener, Event.Priority.Normal, this);
     	pm.registerEvent(Event.Type.PLAYER_QUIT, this.playerListener, Event.Priority.Normal, this);
     	pm.registerEvent(Event.Type.PLAYER_JOIN, this.playerListener, Event.Priority.Normal, this);
     	pm.registerEvent(Event.Type.PLAYER_CHANGED_WORLD, this.playerListener, Event.Priority.Normal, this);
     	
-    	//pm.registerEvent(Event.Type.EXPLOSION_PRIME, this.entityListener, Event.Priority.Normal, this);
-    	
+
     	//Settings file - [Update API]
     	this.pluginPath = this.getDataFolder().getAbsolutePath();
     	this.configFile = new File(this.pluginPath + File.separator + "config.yml");

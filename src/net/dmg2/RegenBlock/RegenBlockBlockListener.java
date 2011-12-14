@@ -3,12 +3,7 @@ package net.dmg2.RegenBlock;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockBurnEvent;
-import org.bukkit.event.block.BlockFadeEvent;
-import org.bukkit.event.block.BlockFormEvent;
-import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockListener;
-import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.scheduler.BukkitScheduler;
 
@@ -27,95 +22,36 @@ public class RegenBlockBlockListener extends BlockListener {
 		regenBlock(event.getBlock(), event.getBlock().getType());
 	}
 	//##########################################################################################################
-	public void onBlockPhysics(BlockPhysicsEvent event) {
-		if(event.isCancelled()) return; //========================
-		regenBlock(event.getBlock(), event.getBlock().getType());
-	}
-	//##########################################################################################################
 	public void onBlockPlace(BlockPlaceEvent event) {
 		if(event.isCancelled()) return; //========================
 		regenBlock(event.getBlock(), Material.AIR);
 	}
+	//##########################################################################################################
 	
-
-	//------------------Cancel these----------------------------------------------------------------------------
-	//##########################################################################################################
-	public void onBlockBurn(BlockBurnEvent event) {
-		if(event.isCancelled()) return; //========================
-		event.setCancelled(true);
-	}
-	//##########################################################################################################
-	public void onBlockFade(BlockFadeEvent event) {
-		if(event.isCancelled()) return; //========================
-		event.setCancelled(true);
-	}
-	//##########################################################################################################
-	public void onBlockForm(BlockFormEvent event) {
-		if(event.isCancelled()) return; //========================
-		event.setCancelled(true);
-	}
-	//##########################################################################################################
-	public void onBlockIgnite(BlockIgniteEvent event) {
-		if(event.isCancelled()) return; //========================
-		event.setCancelled(true);
-	}
-	//------------------Cancel these----------------------------------------------------------------------------
-	//##########################################################################################################
 
 	//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	public void regenBlock(Block b, Material m) {
-		//Get block and material from the event
-		final Block block = b;
+		//Make sure mat passed in is not fire ... happens sometimes it seems =.=
 		if (m == Material.FIRE) m = Material.AIR;
 		final Material mat = m;
-		
-		if (plugin.config.listRegion() == null) return;
+		final Block block = b;
 
-		for (String regionName : plugin.config.listRegion()) {
+		//Check if block is in any of the defined regions (-1 if not)
+		int respawnTime = blockIsInRegion(block); 
+		if (respawnTime == -1) return;
 
-			//Get world name
-			String worldName = plugin.config.getString("region." + regionName + ".world");
-
-			//Make sure block is in this region's world before checking further
-			if (block.getWorld().getName().equalsIgnoreCase(worldName) == false) {
-				continue;
-			}
-
-			//Get re-spawn time
-			int respawnTime = Integer.parseInt(plugin.config.getString("region." + regionName + ".respawnTime"));
-
-			//Get region coordinates
-			int leftX = Integer.parseInt(plugin.config.getString("region." + regionName + ".left.X"));
-			int leftY = Integer.parseInt(plugin.config.getString("region." + regionName + ".left.Y"));
-			int leftZ = Integer.parseInt(plugin.config.getString("region." + regionName + ".left.Z"));
-			int rightX = Integer.parseInt(plugin.config.getString("region." + regionName + ".right.X"));
-			int rightY = Integer.parseInt(plugin.config.getString("region." + regionName + ".right.Y"));
-			int rightZ = Integer.parseInt(plugin.config.getString("region." + regionName + ".right.Z"));
-			
-			//Check if block is within the region
-			if (Math.abs(leftX - rightX) == Math.abs(leftX - block.getX()) + Math.abs(rightX - block.getX()) &&
-					Math.abs(leftY - rightY) == Math.abs(leftY - block.getY()) + Math.abs(rightY - block.getY()) &&
-					Math.abs(leftZ - rightZ) == Math.abs(leftZ - block.getZ()) + Math.abs(rightZ - block.getZ())) {
-				
-				//Check if the block is already being regenerated
-				if ( plugin.config.getString("blocksToRegen." + worldName + "." + "x" + block.getX() + "y" + block.getY() + "z" + block.getZ()) != null) return;
-				//Save block to configuration in case we crash
-				plugin.config.setBlock(block);
-				
-		    	BukkitScheduler scheduler = plugin.getServer().getScheduler();
-		    	scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
-		    		public void run() {
-		    			block.setType(mat);
-		    			plugin.config.removeBlock(block);
-		    		}    		
-		    	}, respawnTime);
-		    	return;
-
-			}
-			
-		}		
+		//Schedule a re-spawn task
+    	BukkitScheduler scheduler = plugin.getServer().getScheduler();
+    	scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
+    		public void run() {
+    			block.setType(mat);
+    			plugin.config.removeBlock(block);
+    		}
+    	}, respawnTime);
+    	return;
 
 	}
+	//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	
 	//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	public void regenOldBlocks() {
@@ -149,21 +85,46 @@ public class RegenBlockBlockListener extends BlockListener {
 	}
 	//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	
-	public boolean letsCancelEvent(Material m) {
-		//Return true if we need to cancel the event
-		if (m == Material.CHEST) return true;
-		if (m == Material.BED) return true;
-		if (m == Material.BED_BLOCK) return true;
-		if (m == Material.FIRE) return true;
-		if (m == Material.LAVA) return true;
-		if (m == Material.LOCKED_CHEST) return true;
-		if (m == Material.WOODEN_DOOR) return true;
-		if (m == Material.WATER) return true;
-		if (m == Material.TNT) return true;
-		if (m == Material.SIGN) return true;
-		if (m == Material.SIGN_POST) return true;
-		if (m == Material.PAINTING) return true;
-		return false;
+	//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	public int blockIsInRegion(Block block) {
+		
+		if (plugin.config.listRegion() == null) return -1;
+
+		for (String regionName : plugin.config.listRegion()) {
+
+			//Get world name
+			String worldName = plugin.config.getString("region." + regionName + ".world");
+
+			//Make sure block is in this region's world before checking further
+			if (block.getWorld().getName().equalsIgnoreCase(worldName) == false) continue;
+
+			//Get region coordinates
+			int leftX = plugin.config.getInt("region." + regionName + ".left.X");
+			int leftY = plugin.config.getInt("region." + regionName + ".left.Y");
+			int leftZ = plugin.config.getInt("region." + regionName + ".left.Z");
+			int rightX = plugin.config.getInt("region." + regionName + ".right.X");
+			int rightY = plugin.config.getInt("region." + regionName + ".right.Y");
+			int rightZ = plugin.config.getInt("region." + regionName + ".right.Z");
+			
+			//Check if block is within the region
+			if (Math.abs(leftX - rightX) == Math.abs(leftX - block.getX()) + Math.abs(rightX - block.getX()) &&
+					Math.abs(leftY - rightY) == Math.abs(leftY - block.getY()) + Math.abs(rightY - block.getY()) &&
+					Math.abs(leftZ - rightZ) == Math.abs(leftZ - block.getZ()) + Math.abs(rightZ - block.getZ())) {
+				
+				//Check if the block is already being regenerated
+				if ( plugin.config.getString("blocksToRegen." + worldName + "." + "x" + block.getX() + "y" + block.getY() + "z" + block.getZ()) != null) return -1;
+
+				//Save block to configuration in case we crash
+				plugin.config.setBlock(block);
+				
+				//Return re-spawn time
+		    	return plugin.config.getInt("region." + regionName + ".respawnTime");
+
+			}
+			
+		}	
+		return -1;
 	}
+	//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 }

@@ -87,7 +87,8 @@ public class RegenBlockConfig {
 		//Remove block after we have restored it from the configuration file
 		String blockName = "x" + block.getX() + "y" + block.getY() + "z" + block.getZ();
 		this.config.removeProperty("blocksToRegen." + block.getWorld().getName() + "." + blockName);
-		if (this.config.getString("blocksToRegen." + block.getWorld().getName()) == null) {
+		//Remove world entry is it's empty of blocks
+		if (this.config.getString("blocksToRegen." + block.getWorld().getName()) == "{}") {
 			this.config.removeProperty("blocksToRegen." + block.getWorld().getName());
 		}
 		this.config.save();

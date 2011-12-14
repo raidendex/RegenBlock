@@ -1,6 +1,6 @@
 main: net.dmg2.RegenBlock.RegenBlock
 name: RegenBlock
-version: beta 1.0.2
+version: beta 1.0.4
 
 permissions:
     regenblock.self:
