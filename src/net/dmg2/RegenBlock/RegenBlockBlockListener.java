@@ -35,7 +35,8 @@ public class RegenBlockBlockListener extends BlockListener {
 		if (m == Material.FIRE) m = Material.AIR;
 		final Material mat = m;
 		final Block block = b;
-
+		final byte data = block.getData();
+		
 		//Check if block is in any of the defined regions (-1 if not)
 		int respawnTime = blockIsInRegion(block); 
 		if (respawnTime == -1) return;
@@ -45,6 +46,7 @@ public class RegenBlockBlockListener extends BlockListener {
     	scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
     		public void run() {
     			block.setType(mat);
+    			block.setData(data);
     			plugin.config.removeBlock(block);
     		}
     	}, respawnTime);
@@ -70,10 +72,12 @@ public class RegenBlockBlockListener extends BlockListener {
 					int y = plugin.config.getInt("blocksToRegen." + worldName + "." + blockName + ".Y");
 					int z = plugin.config.getInt("blocksToRegen." + worldName + "." + blockName + ".Z");
 					int typeId = plugin.config.getInt("blocksToRegen." + worldName + "." + blockName + ".TypeID");
+					byte data = (byte) plugin.config.getInt("blocksToRegen." + worldName + "." + blockName + ".Data");
 					//Get block from the world
 					Block block = plugin.getServer().getWorld(worldName).getBlockAt(x, y, z);
 					//Set its type to what it should be
 					block.setTypeId(typeId);
+					block.setData(data);
 					//Remove entry from configuration file
 					plugin.config.removeBlock(block);
 				}

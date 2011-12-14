@@ -40,7 +40,7 @@ public class RegenBlockConfig {
 	public int getInt(String key) {
 		//If key is in the defaultHashMap use it as default value
 		if (this.configDefaultsHash.containsKey(key) == true) {
-			return this.config.getInt(key, (int) this.configDefaultsHash.get(key));			
+			return this.config.getInt(key, Integer.parseInt(this.configDefaultsHash.get(key).toString()));			
 		}
 		//Otherwise use -1 for default value
 		return this.config.getInt(key, -1);
@@ -80,6 +80,7 @@ public class RegenBlockConfig {
 		this.config.setProperty("blocksToRegen." + block.getWorld().getName() + "." + blockName + ".Y", block.getY());
 		this.config.setProperty("blocksToRegen." + block.getWorld().getName() + "." + blockName + ".Z", block.getZ());
 		this.config.setProperty("blocksToRegen." + block.getWorld().getName() + "." + blockName + ".TypeID", block.getTypeId());
+		this.config.setProperty("blocksToRegen." + block.getWorld().getName() + "." + blockName + ".Data", block.getData());
 		this.config.save();
 	}
 
