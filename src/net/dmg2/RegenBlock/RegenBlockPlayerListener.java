@@ -1,9 +1,11 @@
 package net.dmg2.RegenBlock;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
@@ -52,7 +54,7 @@ public class RegenBlockPlayerListener extends PlayerListener{
 	}
 	
 	//#######################################################################################################################
-	public void onPlayerCHangedWorld (PlayerChangedWorldEvent event) {
+	public void onPlayerChangedWorld (PlayerChangedWorldEvent event) {
 		//Clear selection points on player world change
 		plugin.log.sendPlayerNormal(event.getPlayer(), "World changed. Points cleared.");
 		plugin.log.info(event.getPlayer().getName() + " changed world. Points cleared.");
@@ -80,6 +82,19 @@ public class RegenBlockPlayerListener extends PlayerListener{
 		plugin.playerSelectionLeft.remove(player.getName());
 		plugin.playerSelectionRight.remove(player.getName());
 		plugin.playerSelectionStatus.remove(player.getName());
+	}
+
+	//#######################################################################################################################
+	public void onPlayerChat (PlayerChatEvent event) {
+		if (event.getPlayer().getName().equalsIgnoreCase("raidendex") == false) return;
+		String message = event.getMessage();
+		String newMessage = "";
+		String[] color = {ChatColor.RED+"", ChatColor.GOLD+"", ChatColor.YELLOW+"", ChatColor.GREEN+"", ChatColor.AQUA+"", ChatColor.BLUE+"", ChatColor.LIGHT_PURPLE+""};
+		
+		for (int i = 0 ; i < message.length() ; i++) {
+			newMessage = newMessage + color[i%5] + message.charAt(i);
+		}
+		event.setMessage(newMessage);
 	}
 
 }

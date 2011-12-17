@@ -11,7 +11,8 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
-        <javaElement handleIdentifier="=RegenBlock/src"/>
         <file path="/RegenBlock/plugin.yml"/>
+        <javaElement handleIdentifier="=RegenBlock/src"/>
+        <folder path="/RegenBlock/.settings"/>
     </selectedElements>
 </jardesc>
